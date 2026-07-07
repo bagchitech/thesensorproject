@@ -8,7 +8,7 @@
 typedef enum {
     ACTIVE,
     PASSIVE,
-    ERROR
+    FAULTY
 }Status;
 
 typedef enum {
@@ -42,4 +42,5 @@ typedef struct{
     SensorType sensorType;
     Status status;
 }Sensor;
+
 #endif //SENSORS_H
