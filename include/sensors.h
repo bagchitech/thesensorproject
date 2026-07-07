@@ -43,4 +43,15 @@ typedef struct{
     Status status;
 }Sensor;
 
+/*Initialization function for temperature sensor - Constructor*/
+Sensor init_temperature_sensor(const uint8_t id, const char *name, const short min_range, const int max_range);
+
+
+/*Initialization function for humidity sensor - Constructor*/
+Sensor init_humidity_sensor(const uint8_t id, const char *name, const float calibration);
+
+/*Initialization function for pressure sensor - Constructor*/
+Sensor init_pressure_sensor(const uint8_t id, const char *name, const float altitude);
+
+
 #endif //SENSORS_H

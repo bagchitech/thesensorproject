@@ -13,6 +13,8 @@ int main(){
 
     };
 
+    Sensor sensors[20];
+
     printf("Printing some values to confirm flow");
     printf("The sesnor type is %d\n", sensor.sensorType);
     printf("The id is %d\n",sensor.id);
