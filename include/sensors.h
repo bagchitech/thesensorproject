@@ -5,6 +5,8 @@
 
 #include<stdio.h>
 #include<stdint.h>
+
+#define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 typedef enum {
     ACTIVE,
     PASSIVE,
@@ -44,14 +46,16 @@ typedef struct{
 }Sensor;
 
 /*Initialization function for temperature sensor - Constructor*/
-Sensor init_temperature_sensor(const uint8_t id, const char *name, const short min_range, const int max_range);
+Sensor init_temperature_sensor( uint8_t id, const char *name, short min_range, short max_range);
 
 
 /*Initialization function for humidity sensor - Constructor*/
-Sensor init_humidity_sensor(const uint8_t id, const char *name, const float calibration);
+Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration);
 
 /*Initialization function for pressure sensor - Constructor*/
-Sensor init_pressure_sensor(const uint8_t id, const char *name, const float altitude);
+Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude);
 
+/*Print all sensor values*/
+void print_all_sensors(Sensor *sensors, size_t count);
 
 #endif //SENSORS_H
