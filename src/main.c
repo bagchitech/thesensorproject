@@ -1,6 +1,17 @@
 #include "sensors.h"
+#include<signal.h>
+#include<time.h>
+#include<windows.h>
 
 #define SENSOR_COUNT 21
+
+
+static volatile sig_atomic_t running = 1;
+
+static void handle_sigint(int sig) {
+    (void)sig;
+    running = 0;
+}
 
 int main(){
     Sensor sensor = {.id = 1,
@@ -38,6 +49,16 @@ for (uint8_t i = 0; i < SENSOR_COUNT / 3; i++) {
     size_t count = ARRAY_LENGTH(sensors);
 
     print_all_sensors(sensors, count);
+
+    while (running) {  
+    for (size_t i = 0; i < count; i++) {
+        generateSensorValue(&sensors[i]);
+    }
+    print_all_sensors(sensors, count);
+    printf("---\n");
+    Sleep(10000);
+}
+
 
     printf("Printing some values to confirm flow");
     printf("The sensor type is %d\n", sensor.sensorType);

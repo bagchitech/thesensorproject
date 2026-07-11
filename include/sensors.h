@@ -58,4 +58,8 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude);
 /*Print all sensor values*/
 void print_all_sensors(Sensor *sensors, size_t count);
 
+/*Generate Value for one sensor*/
+
+void generateSensorValue(Sensor *s);
+
 #endif //SENSORS_H
