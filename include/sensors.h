@@ -5,6 +5,7 @@
 
 #include<stdio.h>
 #include<stdint.h>
+#include<time.h>
 
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 typedef enum {
@@ -39,10 +40,14 @@ typedef union{
 
 typedef struct{
     uint8_t id;
+    uint8_t consecutive_bad_reads;
+    uint8_t consecutive_good_reads;
     char name[30];
     DataConfig dataConfig;
     SensorType sensorType;
     Status status;
+    uint32_t reading_count; //monotonic sequence number, increments each successful update
+    time_t last_update; //seconds since epoch of last reading update
 }Sensor;
 
 /*Initialization function for temperature sensor - Constructor*/

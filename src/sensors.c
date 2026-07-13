@@ -51,14 +51,14 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
 /*Print all sensor values*/
 void print_all_sensors(Sensor *sensors, size_t count){
     for(size_t i =0; i < count; i++){
-        if(sensors[i].sensorType==1){
-        printf("ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading);
+        if(sensors[i].sensorType==0){
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading);
+        }
+        else if(sensors[i].sensorType==1){
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading);
         }
         else if(sensors[i].sensorType==2){
-        printf("ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading);
-        }
-        else if(sensors[i].sensorType==2){
-        printf("ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading);
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading);
     }
     }
 }
@@ -76,6 +76,7 @@ void generateSensorValue(Sensor *s){
         else if (s->dataConfig.temperature.reading > s->dataConfig.temperature.max_range){
             s->dataConfig.temperature.reading = s->dataConfig.temperature.max_range;
         }
+         s->reading_count+=1;
         break;
 
         case Humidity:
@@ -87,6 +88,7 @@ void generateSensorValue(Sensor *s){
         } else if( s->dataConfig.humidity.reading > 100.0f){
              s->dataConfig.humidity.reading = 100.0f;
         }
+         s->reading_count+=1;
         break;
 
         case Pressure:
@@ -96,6 +98,7 @@ void generateSensorValue(Sensor *s){
         if( s->dataConfig.pressure.reading < 0.0f){
              s->dataConfig.pressure.reading = 1013.0f;
         }
+        s->reading_count+=1;
         break;
     }
 }
