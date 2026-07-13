@@ -6,6 +6,7 @@
 #include<stdio.h>
 #include<stdint.h>
 #include<time.h>
+#include<stdbool.h>
 
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 typedef enum {

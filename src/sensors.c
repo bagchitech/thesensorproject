@@ -1,6 +1,7 @@
 #include "sensors.h"
 #include<string.h>
 #include<stdlib.h>
+#include "statemachine.h"
 
 /*Initialization function for temperature sensor - Constructor*/
 Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, short max_range){
@@ -65,40 +66,36 @@ void print_all_sensors(Sensor *sensors, size_t count){
 
 /*Generate Value for one sensor*/
 void generateSensorValue(Sensor *s){
+
     switch(s->sensorType){
         case Temperature:
         float deltaValueTemp = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.04f;
         s->dataConfig.temperature.reading += deltaValueTemp;
-
-        if(s->dataConfig.temperature.reading < s->dataConfig.temperature.min_range){
-            s->dataConfig.temperature.reading = s->dataConfig.temperature.min_range;
-        }
-        else if (s->dataConfig.temperature.reading > s->dataConfig.temperature.max_range){
-            s->dataConfig.temperature.reading = s->dataConfig.temperature.max_range;
-        }
-         s->reading_count+=1;
+        s->reading_count++;
         break;
 
         case Humidity:
         float deltaValueHumidity = (((float)rand() / (float)RAND_MAX) - 0.5f) * 2.0f;
         s->dataConfig.humidity.reading += deltaValueHumidity * s->dataConfig.humidity.calibration ;
-
-        if( s->dataConfig.humidity.reading < 0.0f){
-             s->dataConfig.humidity.reading = 0.0f;
-        } else if( s->dataConfig.humidity.reading > 100.0f){
-             s->dataConfig.humidity.reading = 100.0f;
-        }
-         s->reading_count+=1;
+        s->reading_count++;
         break;
 
         case Pressure:
         float deltaValuePressure = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.5f;
         s->dataConfig.pressure.reading += deltaValuePressure;
-
-        if( s->dataConfig.pressure.reading < 0.0f){
-             s->dataConfig.pressure.reading = 1013.0f;
-        }
-        s->reading_count+=1;
+        s->reading_count++;
         break;
     }
+
+    bool validity = is_reading_valid(s);
+
+    if(validity == true){
+        s->consecutive_good_reads++;
+        s->consecutive_bad_reads = 0;
+    }
+    else{
+        s->consecutive_bad_reads++;
+        s->consecutive_good_reads = 0;
+    }
+    update_sensor_state(s);
 }
