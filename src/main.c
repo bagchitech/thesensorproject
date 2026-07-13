@@ -1,6 +1,5 @@
 #include "sensors.h"
 #include<signal.h>
-#include<time.h>
 #include<windows.h>
 
 #define SENSOR_COUNT 21
