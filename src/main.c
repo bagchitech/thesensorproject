@@ -13,45 +13,26 @@ static void handle_sigint(int sig) {
 }
 
 int main(){
-    Sensor sensor = {.id = 1,
-    .name = "Test1",
-    .dataConfig={.humidity = {
-        .calibration = 0.01,
-        .reading = 87.2,
-    },
-    },
-    .sensorType = Humidity,
-    .status = ACTIVE,
+    Sensor sensors[5];
+    sensors[0] = init_temperature_sensor(1, "Living Room", -10, 50);
+    sensors[1] = init_temperature_sensor(2, "Basement", -10, 50);
+    sensors[2] = init_temperature_sensor(3, "Attic", -10, 50);
+    sensors[3] = init_temperature_sensor(4, "Freezer", -30, 5);
+    sensors[4] = init_temperature_sensor(5, "Outside", -20, 40);
 
-    };
-
-    Sensor sensors[SENSOR_COUNT];
-
-    uint8_t sensor_type=0;
-    char sensor_name[] = "Sensor";
-    short min_range = -10;
-    short max_range = 50;
-    float calibration = 0.01f;
-    float alt = 150.0f;
-
-for (uint8_t i = 0; i < SENSOR_COUNT / 3; i++) {
-    sensors[3*i]     = init_temperature_sensor(3*i, sensor_name, min_range, max_range);
-    sensors[3*i + 1] = init_humidity_sensor(3*i + 1, sensor_name, calibration);
-    sensors[3*i + 2] = init_pressure_sensor(3*i + 2, sensor_name, alt);
-
-    min_range += 1;
-    max_range += 1;
-    calibration += 0.01f;
-    alt += 10.0f;
-}
-
+    // Assign one fault mode per sensor
+    set_sensor_fault(&sensors[0], NORMAL);
+    set_sensor_fault(&sensors[1], STUCK);
+    set_sensor_fault(&sensors[2], DRIFTING);
+    set_sensor_fault(&sensors[3], NOISY);
+    set_sensor_fault(&sensors[4], DEAD);
     size_t count = ARRAY_LENGTH(sensors);
 
     print_all_sensors(sensors, count);
 
     while (running) {  
     for (size_t i = 0; i < count; i++) {
-        generateSensorValue(&sensors[i]);
+        tick_sensor(&sensors[i]);
     }
     print_all_sensors(sensors, count);
     printf("---\n");
@@ -59,9 +40,9 @@ for (uint8_t i = 0; i < SENSOR_COUNT / 3; i++) {
 }
 
 
-    printf("Printing some values to confirm flow");
-    printf("The sensor type is %d\n", sensor.sensorType);
-    printf("The id is %d\n",sensor.id);
+    // printf("Printing some values to confirm flow");
+    // printf("The sensor type is %d\n", sensor.sensorType);
+    // printf("The id is %d\n",sensor.id);
 
 
     return 0;

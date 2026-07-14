@@ -53,39 +53,147 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
 void print_all_sensors(Sensor *sensors, size_t count){
     for(size_t i =0; i < count; i++){
         if(sensors[i].sensorType==0){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading);
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading, fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==1){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading);
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading, fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==2){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading);
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading, fault_name(sensors[i].faultmode));
     }
     }
 }
 
 /*Generate Value for one sensor*/
-void generateSensorValue(Sensor *s){
+// void generateSensorValue(Sensor *s){
 
-    switch(s->sensorType){
-        case Temperature:
-        float deltaValueTemp = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.04f;
-        s->dataConfig.temperature.reading += deltaValueTemp;
-        s->reading_count++;
-        break;
+//     switch(s->sensorType){
+//         case Temperature:
+//         float deltaValueTemp = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.04f;
+//         s->dataConfig.temperature.reading += deltaValueTemp;
+//         s->reading_count++;
+//         break;
 
-        case Humidity:
-        float deltaValueHumidity = (((float)rand() / (float)RAND_MAX) - 0.5f) * 2.0f;
-        s->dataConfig.humidity.reading += deltaValueHumidity * s->dataConfig.humidity.calibration ;
-        s->reading_count++;
-        break;
+//         case Humidity:
+//         float deltaValueHumidity = (((float)rand() / (float)RAND_MAX) - 0.5f) * 2.0f;
+//         s->dataConfig.humidity.reading += deltaValueHumidity * s->dataConfig.humidity.calibration ;
+//         s->reading_count++;
+//         break;
 
-        case Pressure:
-        float deltaValuePressure = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.5f;
-        s->dataConfig.pressure.reading += deltaValuePressure;
-        s->reading_count++;
-        break;
+//         case Pressure:
+//         float deltaValuePressure = (((float)rand() / (float)RAND_MAX) - 0.5f) * 0.5f;
+//         s->dataConfig.pressure.reading += deltaValuePressure;
+//         s->reading_count++;
+//         break;
+//     }
+
+//     bool validity = is_reading_valid(s);
+
+//     if(validity == true){
+//         s->consecutive_good_reads++;
+//         s->consecutive_bad_reads = 0;
+//     }
+//     else{
+//         s->consecutive_bad_reads++;
+//         s->consecutive_good_reads = 0;
+//     }
+//     update_sensor_state(s);
+// }
+
+void set_sensor_fault(Sensor *s, FaultMode f) {
+    if (!s) return;
+    s->faultmode = f;
+}
+
+const char *fault_name(FaultMode f) {
+    switch (f) {
+        case NORMAL:   return "NORMAL";
+        case STUCK:    return "STUCK";
+        case DRIFTING: return "DRIFTING";
+        case NOISY:    return "NOISY";
+        case DEAD:     return "DEAD";
+        default:       return "UNKNOWN";
     }
+}
+
+/* Generate a single "normal" reading for the sensor's type. */
+static double generate_normal_reading(const Sensor *s) {
+    switch (s->sensorType) {
+        case Temperature: {
+            double current = s->dataConfig.temperature.reading;
+            double delta = ((double)rand() / RAND_MAX - 0.5) * 0.4;
+            return current + delta;
+        }
+        case Humidity: {
+            double current = s->dataConfig.humidity.reading;
+            double delta = ((double)rand() / RAND_MAX - 0.5) * 2.0;
+            return (current + delta) * s->dataConfig.humidity.calibration;
+        }
+        case Pressure: {
+            double current = s->dataConfig.pressure.reading;
+            if (current == 0.0) current = 1013.0;   // seed first tick
+            double delta = ((double)rand() / RAND_MAX - 0.5) * 0.5;
+            return current + delta;
+        }
+    }
+    return 0.0;
+}
+
+// Read the current reading from whichever union variant is active.
+static double get_current_reading(const Sensor *s) {
+    switch (s->sensorType) {
+        case Temperature: return s->dataConfig.temperature.reading;
+        case Humidity:    return s->dataConfig.humidity.reading;
+        case Pressure:    return s->dataConfig.pressure.reading;
+    }
+    return 0.0;
+}
+
+// Store a new reading into the active union variant.
+static void set_reading(Sensor *s, double value) {
+    switch (s->sensorType) {
+        case Temperature: s->dataConfig.temperature.reading = (float)value; break;
+        case Humidity:    s->dataConfig.humidity.reading    = (float)value; break;
+        case Pressure:    s->dataConfig.pressure.reading    = (float)value; break;
+    }
+}
+
+void tick_sensor(Sensor *s) {
+    if (!s) return;
+    if (s->status == PASSIVE) return;
+
+    double new_reading = 0.0;
+
+    switch (s->faultmode) {
+        case NORMAL:
+            new_reading = generate_normal_reading(s);
+            break;
+
+        case STUCK:
+            // Reading doesn't change — but we still bump reading_count so
+            // stale detection has to catch it via "value unchanged," not "no updates."
+            new_reading = get_current_reading(s);
+            break;
+
+        case DRIFTING:
+            // Steady march in one direction, ignoring bounds. Eventually walks out of range.
+            new_reading = get_current_reading(s) + 0.5;   // per-tick drift
+            break;
+
+        case NOISY:
+            // Wildly out-of-range values. Should trip ERROR quickly.
+            new_reading = ((double)rand() / RAND_MAX) * 2000.0 - 1000.0;
+            break;
+
+        case DEAD:
+            // No update to reading, sequence, or timestamp. Sensor is silent.
+            return;
+    }
+
+    // Store the reading and bump bookkeeping
+    set_reading(s, new_reading);
+    s->reading_count++;
+    s->last_update = time(NULL);
 
     bool validity = is_reading_valid(s);
 

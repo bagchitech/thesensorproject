@@ -15,6 +15,13 @@ typedef enum {
     FAULTY
 }Status;
 
+typedef enum { 
+    NORMAL, 
+    STUCK, 
+    DRIFTING, 
+    NOISY, 
+    DEAD } FaultMode;
+
 typedef enum {
     Temperature,
     Humidity,
@@ -47,6 +54,7 @@ typedef struct{
     DataConfig dataConfig;
     SensorType sensorType;
     Status status;
+    FaultMode faultmode;
     uint32_t reading_count; //monotonic sequence number, increments each successful update
     time_t last_update; //seconds since epoch of last reading update
 }Sensor;
@@ -67,5 +75,11 @@ void print_all_sensors(Sensor *sensors, size_t count);
 /*Generate Value for one sensor*/
 
 void generateSensorValue(Sensor *s);
+
+void tick_sensor(Sensor *s);
+
+/*Set the fault mode of the sensor*/
+void set_sensor_fault(Sensor *s, FaultMode f);
+const char *fault_name(FaultMode f);
 
 #endif //SENSORS_H
