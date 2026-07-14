@@ -35,6 +35,14 @@ bool is_reading_valid(const Sensor *s){
 /*Apply the transition rules*/
 void update_sensor_state(Sensor *s){
     if (s->status == PASSIVE) return;
-    if ((s->status == ACTIVE) && (s->consecutive_bad_reads >=5)) s->status = FAULTY;
+    if(s->faultmode == STUCK){
+            if ((s->status == ACTIVE) && ((time(NULL) - s->last_update) > STALE_THRESHOLD)) {
+        s->status = FAULTY;
+        s->consecutive_good_reads = 0;
+        printf("Sensor %u (%s) → FAULTY (stale)\n", s->id, s->name);
+    }
+
+    }
+    else if ((s->status == ACTIVE) && (s->consecutive_bad_reads >=5)) s->status = FAULTY;
     else if ((s->status == FAULTY) && (s->consecutive_good_reads >=3)) s->status = ACTIVE;
 }
