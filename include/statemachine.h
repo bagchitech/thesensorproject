@@ -9,6 +9,7 @@
 
 #define ERROR_THRESHOLD 5 
 #define RECOVERY_THRESHOLD 3
+#define STALE_THRESHOLD 10
 
 /*checks type-specific bounds*/
 bool is_reading_valid(const Sensor *s);

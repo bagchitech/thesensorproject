@@ -139,7 +139,6 @@ static double generate_normal_reading(const Sensor *s) {
     return 0.0;
 }
 
-// Read the current reading from whichever union variant is active.
 static double get_current_reading(const Sensor *s) {
     switch (s->sensorType) {
         case Temperature: return s->dataConfig.temperature.reading;
@@ -149,8 +148,12 @@ static double get_current_reading(const Sensor *s) {
     return 0.0;
 }
 
-// Store a new reading into the active union variant.
+
 static void set_reading(Sensor *s, double value) {
+    double old = get_current_reading(s);
+    if (value != old) {
+        s->last_update = time(NULL); 
+    }
     switch (s->sensorType) {
         case Temperature: s->dataConfig.temperature.reading = (float)value; break;
         case Humidity:    s->dataConfig.humidity.reading    = (float)value; break;
@@ -170,18 +173,14 @@ void tick_sensor(Sensor *s) {
             break;
 
         case STUCK:
-            // Reading doesn't change — but we still bump reading_count so
-            // stale detection has to catch it via "value unchanged," not "no updates."
             new_reading = get_current_reading(s);
             break;
 
         case DRIFTING:
-            // Steady march in one direction, ignoring bounds. Eventually walks out of range.
-            new_reading = get_current_reading(s) + 0.5;   // per-tick drift
+            new_reading = get_current_reading(s) + 0.5;  
             break;
 
         case NOISY:
-            // Wildly out-of-range values. Should trip ERROR quickly.
             new_reading = ((double)rand() / RAND_MAX) * 2000.0 - 1000.0;
             break;
 
@@ -190,10 +189,9 @@ void tick_sensor(Sensor *s) {
             return;
     }
 
-    // Store the reading and bump bookkeeping
     set_reading(s, new_reading);
     s->reading_count++;
-    s->last_update = time(NULL);
+   // s->last_update = time(NULL);
 
     bool validity = is_reading_valid(s);
 
