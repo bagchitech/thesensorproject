@@ -42,6 +42,15 @@ gcc -o sensor_project main.c
 ./sensor_project
 ```
 
+### Build & Run
+Command-line commands
+
+- --config(default: sensors.conf)
+- --duration(default: run until Crtl+C)
+- --tick-rate(defaukt: 1000)
+- --quiet(avoid output print)
+- --help
+
 ## Why This Project Exists
 
 This is a learning exercise to build intuition for:
