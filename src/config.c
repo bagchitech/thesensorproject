@@ -172,7 +172,7 @@ Sensor *load_sensor_config(const char *path, size_t *out_count){
         while (*p == ' ' || *p == '\t') p++;
         if (*p == '\0' || *p == '\n' || *p == '#') continue;
 
-            if (strncmp(p, "sensor", 6) != 0) {
+        if (strncmp(p, "sensor", 6) != 0) {
             fprintf(stderr, "%s:%d: expected 'sensor' keyword\n", path, line_number);
             continue;
            // free(sensors);
@@ -181,10 +181,14 @@ Sensor *load_sensor_config(const char *path, size_t *out_count){
         }
 
         if (parse_sensor_line(p, &sensors[index], path, line_number) != 0) {
-            free(sensors);
-            fclose(fp);
-            return NULL;
+            fprintf(stderr, "%s:%d: warning: could not parse, skipping\n",
+                path, line_number);
+                continue; 
         }
+        index++;
+    }
+    fclose(fp);                   
+    *out_count = sensor_count;    
+    return sensors;                
     }
 
-}
