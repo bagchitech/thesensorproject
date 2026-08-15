@@ -192,3 +192,12 @@ Sensor *load_sensor_config(const char *path, size_t *out_count){
     return sensors;                
     }
 
+
+    void print_help_usage(void){
+        printf("\n HELP for command usage \n");
+        printf("\n --config <path of the config file>; Default is sensors.config\n");
+        printf("\n --duration <time in seconds>; Default is run until Ctrl+c \n");
+        printf("\n --tick-rate <time in ms>; Default is 1000 \n");
+        printf("\n --quiet ; Stops the printing of messages\n");
+    }
+
