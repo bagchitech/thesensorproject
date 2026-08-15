@@ -1,0 +1,3 @@
+*.exe
+CMakeLists.txt
+build/
