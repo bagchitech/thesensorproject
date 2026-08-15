@@ -4,7 +4,7 @@
 #include "statemachine.h"
 
 /*Initialization function for temperature sensor - Constructor*/
-Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, short max_range){
+Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, short max_range, size_t history_capacity){
     
     Sensor sensor = {0};
     sensor.id = id;
@@ -15,13 +15,14 @@ Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, sh
     sensor.dataConfig.temperature.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }
 
 
 /*Initialization function for humidity sensor - Constructor*/
-Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration){
+Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration, size_t history_capacity){
     
     Sensor sensor = {0};
     sensor.id = id;
@@ -31,12 +32,13 @@ Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration){
     sensor.dataConfig.humidity.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }
 
 /*Initialization function for pressure sensor - Constructor*/
-Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
+Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude, size_t history_capacity){
     Sensor sensor = {0};
     sensor.id = id;
     sensor.sensorType = Pressure;
@@ -45,6 +47,7 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
     sensor.dataConfig.pressure.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }

@@ -52,7 +52,7 @@ static int parse_sensor_line(char *line, Sensor *out, const char *path, int line
         p = word_end;
         while (*p == ' ' || *p == '\t') p++;
         if(strcmp(type_word,"TEMPERATURE")==0){
-            *out = init_temperature_sensor((uint8_t)id, name, 0, 0);
+            *out = init_temperature_sensor((uint8_t)id, name, 0, 0,history_capacity);
         }
         else if(strcmp(type_word,"HUMIDITY")==0){
             *out = init_humidity_sensor((uint8_t)id, name, 1.0f);
@@ -199,5 +199,6 @@ Sensor *load_sensor_config(const char *path, size_t *out_count){
         printf("\n --duration <time in seconds>; Default is run until Ctrl+c \n");
         printf("\n --tick-rate <time in ms>; Default is 1000 \n");
         printf("\n --quiet ; Stops the printing of messages\n");
+        printf("\n --history-capacity <value of the number of readings>; Default is 100\n");
     }
 

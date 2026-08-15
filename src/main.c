@@ -47,6 +47,7 @@ int main(int argc, char **argv){
         }
         else if(strcmp(argv[i],"--help")==0){
             print_help_usage();
+            return 0;
         }
         else{
             printf("Please provide valid commands!");
