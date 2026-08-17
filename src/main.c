@@ -3,6 +3,7 @@
 #include<windows.h>
 #include "config.h"
 
+
 #define SENSOR_COUNT 21
 
 static volatile sig_atomic_t running = 1;

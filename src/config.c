@@ -51,14 +51,21 @@ static int parse_sensor_line(char *line, Sensor *out, const char *path, int line
         type_word[type_len] = '\0';
         p = word_end;
         while (*p == ' ' || *p == '\t') p++;
+        //Find the history capacity
+        size_t history_capacity = 0;
+        char *complete;
+        history_capacity = (size_t)strtol(p, &complete, 10); 
+        p = complete;                                   
+        while (*p == ' ' || *p == '\t') p++;          
+
         if(strcmp(type_word,"TEMPERATURE")==0){
             *out = init_temperature_sensor((uint8_t)id, name, 0, 0,history_capacity);
         }
         else if(strcmp(type_word,"HUMIDITY")==0){
-            *out = init_humidity_sensor((uint8_t)id, name, 1.0f);
+            *out = init_humidity_sensor((uint8_t)id, name, 1.0f, history_capacity);
         }
         else if(strcmp(type_word,"PRESSURE")==0){
-           *out = init_pressure_sensor((uint8_t)id, name, 0.0f);
+           *out = init_pressure_sensor((uint8_t)id, name, 0.0f,history_capacity);
         }
         else{
             fprintf(stderr, "%s:%d: unknown sensor type '%s'\n",
