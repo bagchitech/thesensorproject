@@ -51,14 +51,21 @@ static int parse_sensor_line(char *line, Sensor *out, const char *path, int line
         type_word[type_len] = '\0';
         p = word_end;
         while (*p == ' ' || *p == '\t') p++;
+        //Find the history capacity
+        size_t history_capacity = 0;
+        char *complete;
+        history_capacity = (size_t)strtol(p, &complete, 10); 
+        p = complete;                                   
+        while (*p == ' ' || *p == '\t') p++;          
+
         if(strcmp(type_word,"TEMPERATURE")==0){
-            *out = init_temperature_sensor((uint8_t)id, name, 0, 0);
+            *out = init_temperature_sensor((uint8_t)id, name, 0, 0,history_capacity);
         }
         else if(strcmp(type_word,"HUMIDITY")==0){
-            *out = init_humidity_sensor((uint8_t)id, name, 1.0f);
+            *out = init_humidity_sensor((uint8_t)id, name, 1.0f, history_capacity);
         }
         else if(strcmp(type_word,"PRESSURE")==0){
-           *out = init_pressure_sensor((uint8_t)id, name, 0.0f);
+           *out = init_pressure_sensor((uint8_t)id, name, 0.0f,history_capacity);
         }
         else{
             fprintf(stderr, "%s:%d: unknown sensor type '%s'\n",
@@ -190,5 +197,15 @@ Sensor *load_sensor_config(const char *path, size_t *out_count){
     fclose(fp);                   
     *out_count = sensor_count;    
     return sensors;                
+    }
+
+
+    void print_help_usage(void){
+        printf("\n HELP for command usage \n");
+        printf("\n --config <path of the config file>; Default is sensors.config\n");
+        printf("\n --duration <time in seconds>; Default is run until Ctrl+c \n");
+        printf("\n --tick-rate <time in ms>; Default is 1000 \n");
+        printf("\n --quiet ; Stops the printing of messages\n");
+        printf("\n --history-capacity <value of the number of readings>; Default is 100\n");
     }
 

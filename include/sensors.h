@@ -7,6 +7,7 @@
 #include<stdint.h>
 #include<time.h>
 #include<stdbool.h>
+#include "ringbuffer.h"
 
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 typedef enum {
@@ -52,6 +53,7 @@ typedef struct{
     uint8_t consecutive_good_reads;
     char name[30];
     DataConfig dataConfig;
+    RingBuffer history;
     SensorType sensorType;
     Status status;
     FaultMode faultmode;
@@ -60,14 +62,14 @@ typedef struct{
 }Sensor;
 
 /*Initialization function for temperature sensor - Constructor*/
-Sensor init_temperature_sensor( uint8_t id, const char *name, short min_range, short max_range);
+Sensor init_temperature_sensor( uint8_t id, const char *name, short min_range, short max_range, size_t history_capacity);
 
 
 /*Initialization function for humidity sensor - Constructor*/
-Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration);
+Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration, size_t history_capacity);
 
 /*Initialization function for pressure sensor - Constructor*/
-Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude);
+Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude, size_t history_capacity);
 
 /*Print all sensor values*/
 void print_all_sensors(Sensor *sensors, size_t count);

@@ -3,6 +3,7 @@
 #include<windows.h>
 #include "config.h"
 
+
 #define SENSOR_COUNT 21
 
 static volatile sig_atomic_t running = 1;
@@ -46,7 +47,8 @@ int main(int argc, char **argv){
             quiet = true;
         }
         else if(strcmp(argv[i],"--help")==0){
-
+            print_help_usage();
+            return 0;
         }
         else{
             printf("Please provide valid commands!");

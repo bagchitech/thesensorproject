@@ -4,7 +4,7 @@
 #include "statemachine.h"
 
 /*Initialization function for temperature sensor - Constructor*/
-Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, short max_range){
+Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, short max_range, size_t history_capacity){
     
     Sensor sensor = {0};
     sensor.id = id;
@@ -15,13 +15,14 @@ Sensor init_temperature_sensor(uint8_t id, const char *name, short min_range, sh
     sensor.dataConfig.temperature.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }
 
 
 /*Initialization function for humidity sensor - Constructor*/
-Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration){
+Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration, size_t history_capacity){
     
     Sensor sensor = {0};
     sensor.id = id;
@@ -31,12 +32,13 @@ Sensor init_humidity_sensor(uint8_t id, const char *name, float calibration){
     sensor.dataConfig.humidity.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }
 
 /*Initialization function for pressure sensor - Constructor*/
-Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
+Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude, size_t history_capacity){
     Sensor sensor = {0};
     sensor.id = id;
     sensor.sensorType = Pressure;
@@ -45,6 +47,7 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
     sensor.dataConfig.pressure.reading = 0.0f;
     strncpy(sensor.name, name, sizeof(sensor.name) - 1);
     sensor.name[sizeof(sensor.name) - 1] = '\0';
+    rb_init(&sensor.history, history_capacity);
 
     return sensor;
 }
@@ -53,13 +56,13 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude){
 void print_all_sensors(Sensor *sensors, size_t count){
     for(size_t i =0; i < count; i++){
         if(sensors[i].sensorType==0){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading, fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==1){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading, fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==2){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading, fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
     }
     }
 }
@@ -166,6 +169,7 @@ void tick_sensor(Sensor *s) {
     if (s->status == PASSIVE) return;
 
     double new_reading = 0.0;
+    // printf("Why is this happeing?\n");
 
     switch (s->faultmode) {
         case NORMAL:
@@ -187,6 +191,7 @@ void tick_sensor(Sensor *s) {
         case DEAD:
             // No update to reading, sequence, or timestamp. Sensor is silent.
             return;
+        
     }
 
     set_reading(s, new_reading);
@@ -204,4 +209,6 @@ void tick_sensor(Sensor *s) {
         s->consecutive_good_reads = 0;
     }
     update_sensor_state(s);
+    //printf("\nWe are about to push the data!\n");
+    rb_push(&s->history, new_reading);
 }
