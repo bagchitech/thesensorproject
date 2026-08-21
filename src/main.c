@@ -2,7 +2,7 @@
 #include<signal.h>
 #include<windows.h>
 #include "config.h"
-
+#include "logger.h"
 
 #define SENSOR_COUNT 21
 
@@ -18,6 +18,7 @@ int main(int argc, char **argv){
     int duration = 0;          // 0 means "run forever"
     int tick_rate_ms = 1000;
     bool quiet = false;
+    const char *log_path = NULL;
     for(int i=0; i<argc; i++){
         if(strcmp(argv[i],"--config")==0){
             if(i+1>=argc){
@@ -50,6 +51,14 @@ int main(int argc, char **argv){
             print_help_usage();
             return 0;
         }
+        else if(strcmp(argv[i],"--log")==0){
+            if(i+1>=argc){
+                printf("Please enter valid log path!\n");
+                return 0;
+            }
+            ++i;
+            log_path = argv[i];
+        }
         else{
             printf("Please provide valid commands!");
         }
@@ -62,10 +71,12 @@ int main(int argc, char **argv){
     signal(SIGINT, handle_sigint);
 
     time_t start = time(NULL);
+    Logger *logger = log_path ? logger_open(log_path) : NULL;
 
     while(running){
         for(size_t i=0; i<count; i++){
             tick_sensor(&sensors[i]);
+            if(logger) logger_write(logger, &sensors[i]);
         }
 
         if(!quiet){
@@ -139,6 +150,7 @@ int main(int argc, char **argv){
     // printf("Printing some values to confirm flow");
     // printf("The sensor type is %d\n", sensor.sensorType);
     // printf("The id is %d\n",sensor.id);
+    if(logger) logger_close(logger);
     free(sensors);
     return 0;
 }
