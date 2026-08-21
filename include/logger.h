@@ -11,8 +11,6 @@ typedef struct{
 }Logger;
 
 Logger *logger_open(const char *path);
-static double reading_of(const Sensor *s);
-static void write_csv_field(FILE *f, const char *text);
 void logger_write(Logger *l, const Sensor *s);
 void logger_close(Logger *l);
 

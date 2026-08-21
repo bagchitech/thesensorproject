@@ -83,5 +83,7 @@ void tick_sensor(Sensor *s);
 /*Set the fault mode of the sensor*/
 void set_sensor_fault(Sensor *s, FaultMode f);
 const char *fault_name(FaultMode f);
+const char *sensor_type_name(SensorType t);
+const char *status_name(Status s);
 
 #endif //SENSORS_H

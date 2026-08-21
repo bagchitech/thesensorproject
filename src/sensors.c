@@ -56,13 +56,13 @@ Sensor init_pressure_sensor(uint8_t id, const char *name, float altitude, size_t
 void print_all_sensors(Sensor *sensors, size_t count){
     for(size_t i =0; i < count; i++){
         if(sensors[i].sensorType==0){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %zu FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.temperature.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==1){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %zu FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.humidity.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
         }
         else if(sensors[i].sensorType==2){
-        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %d FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
+        printf("SEQ No: %u ID: %d Name: %s SensorType: %d Status: %d Reading: %f COUNT: %zu FAULT: %s \n",sensors[i].reading_count, sensors[i].id, sensors[i].name, sensors[i].sensorType, sensors[i].status, sensors[i].dataConfig.pressure.reading, rb_count(&sensors[i].history), fault_name(sensors[i].faultmode));
     }
     }
 }
@@ -116,6 +116,24 @@ const char *fault_name(FaultMode f) {
         case NOISY:    return "NOISY";
         case DEAD:     return "DEAD";
         default:       return "UNKNOWN";
+    }
+}
+
+const char *sensor_type_name(SensorType t) {
+    switch (t) {
+        case Temperature:   return "TEMPERATURE";
+        case Humidity:      return "HUMIDITY";
+        case Pressure:      return "PRESSURE";
+        default:            return "UNKNOWN";
+    }
+}
+
+const char *status_name(Status s) {
+    switch (s) {
+        case ACTIVE:    return "ACTIVE";
+        case PASSIVE:   return "PASSIVE";
+        case FAULTY:    return "FAULTY";
+        default:        return "UNKNOWN";
     }
 }
 

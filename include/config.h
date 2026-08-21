@@ -13,7 +13,6 @@
 #define MAX_LINE_LENGTH 256
 
 Sensor *load_sensor_config(const char *path, size_t *out_count);
-static int parse_sensor_line(char *line, Sensor *out, const char *path, int line_number);
 void print_help_usage(void);
 
 #endif //SENSOR_H

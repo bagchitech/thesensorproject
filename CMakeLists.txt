@@ -11,13 +11,14 @@ endif()
 # Where to find headers
 include_directories(include)
 
-# What to build — all source files
+# What to build
 add_executable(thesensorproject
     src/main.c
     src/sensors.c
     src/config.c
     src/statemachine.c
     src/ringbuffer.c
+    src/logger.c
 )
 
 target_link_libraries(thesensorproject m)
