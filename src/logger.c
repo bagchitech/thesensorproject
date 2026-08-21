@@ -66,6 +66,11 @@ void logger_write(Logger *l, const Sensor *s) {
     fputs(status_name(s->status), l->file);
     fputc('\n', l->file);
 
+    fprintf(l->file, "%.2f,", reading_of(s));
+
+    fputs(fault_name(s->faultmode), l->file);
+    fputc('\n', l->file);
+
     l->rows++;
 
     fflush(l->file);
